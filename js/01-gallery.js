@@ -16,6 +16,7 @@ const galleryImages = galleryItems.map((image) => {
 }).join("");
 
 gallery.innerHTML = galleryImages;
+let instance;
 
 function selectImage(event) {
   event.preventDefault();
@@ -24,16 +25,23 @@ function selectImage(event) {
     return;
   }
 
-  const instance = basicLightbox.create(`
+  instance = basicLightbox.create(`
     <img src="${event.target.dataset.source}" width="800" height="600">
-  `);
-  instance.show();
-  
-  document.addEventListener("keydown", (event) => {
-    if (event.keyCode == 27) {
-      instance.close();
-    }
+  `, {
+    onClose: () => {
+      document.removeEventListener("keydown", closeModal);
+    },
+    onShow: () => {
+      document.addEventListener("keydown", closeModal);
+     },
   });
+  instance.show();
+}
+
+function closeModal(event) { 
+  if (event.keyCode == 27) {
+    instance.close();
+  }
 }
 
 gallery.addEventListener("click", selectImage);
